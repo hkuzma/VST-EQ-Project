@@ -53,6 +53,22 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+
+
+    //Function to Create Parameter Layout for apvts --HENRY
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    //HENRY
+    /*PARAMS: AudioProcessor --> AUDIO PROCESSOR TO CONNECT TO -- Passed by reference
+    *         UndoManager --> THE UNDO MANAGER BEING USED -- Ptr
+    *         Identifier --> THE TYPE OF VALUE TREE -- Passed by reference --> String
+    *         ParameterLayour --> The layout of plugin parameters
+    */
+    juce::AudioProcessorValueTreeState apvts{ *this,nullptr, "Parameters", createParameterLayout() };
+
+
+
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)

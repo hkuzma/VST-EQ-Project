@@ -166,7 +166,10 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    return new SimpleEQAudioProcessorEditor (*this);
+    //return new SimpleEQAudioProcessorEditor (*this);
+
+    return new juce::GenericAudioProcessorEditor(*this);  //HENRY
+
 }
 
 //==============================================================================
@@ -181,6 +184,116 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+//DECLARATION FOR PARAMETER LAYOUT -- HENRY
+//PARAMETERS TO LAYOUT -- LOW CUT, LF, LM, M, HM, HF, HIGH CUT
+//FUNCTIONS OF PARAMS -- LOW CUT, HIGH CUT { ADJUSTABLE FREQUENCY AND SLOPE} LF, LM, M, HM, H { ADJUSTABLE FREQUENCY, GAIN, Q}
+//DOCUMENTATION INFO @ 19:43 in video
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout() {
+
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    //LOW CUT
+    //AudioParameterFloat Parameters: ParameterID (string), ParameterName (string), 
+        //normalisableRange (NormalisableRange<float>), defaultValue (float)
+        
+    //NormalisableRange takes a series of parameters: Low Frequency(float), High Frequency(float), Step-Size(float), 
+        //Skew Factor (float) -- alters distribution of slider
+    //=============================================================================================================
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq", 
+                                                           "Lowcut Freq", 
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 
+                                                           20.f));
+
+    //HIGH CUT
+    //=============================================================================================================
+    layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
+                                                           "Highcut Freq", 
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 
+                                                           20000.f));
+    //Peaks
+    //=============================================================================================================
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LF",
+                                                           "LF", 
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f), 
+                                                           100.f));
+    juce::NormalisableRange<float> EQRange{ 20.f, 20000.f};
+    EQRange.setSkewForCentre(200.f);
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LM",
+                                                           "LM",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           250.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("M",
+                                                           "M",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           1000.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("HM",
+                                                           "HM",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           2500.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("HF",
+                                                           "HF",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           7500.f));
+    
+    //GAIN
+    //A GOOD RANGE FOR GAIN IS -24 --> 24db
+    //=============================================================================================================
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
+                                                           "Peak Gain", 
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 
+                                                           0.0f));
+
+    //Q
+    //=============================================================================================================
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Q",
+                                                           "Q", 
+                                                           juce::NormalisableRange<float>(0.1, 10, 0.05f, 1.f), 
+                                                           1.f));
+
+    //STEEPNESS
+    //Expressed in DB/Octave: 12db/octave, 24db/octave, 36db/octave etc :: equation expressed in multiples of 6 or 12
+    //Using 12, 24, 36, 48
+
+    //AUDIOPARAMETER CHOICE PARAMS: parameterID (string), parameterName(string), choices(StringArray), defaultItemIndex(int)
+    //=======================================================================================================================
+
+    juce::StringArray stringArray;
+
+    //Construct 4 strings to place in array
+    for (int i = 0; i < 4; i++) {
+        juce::String str;
+        str << (12 + i*12);
+        str << " db/Oct";
+        stringArray.add(str);
+    }
+
+    //LOWCUT OPTIONS
+    layout.add(std::make_unique <juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", stringArray, 0));
+
+    //HIGHCUT OPTIONS
+    layout.add(std::make_unique <juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", stringArray, 0));
+
+
+
+
+
+    //LM
+    
+
+
+
+
+
+
+    return layout;
+
+
 }
 
 //==============================================================================
