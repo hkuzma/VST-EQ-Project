@@ -55,7 +55,8 @@ public:
 
 
 
-    //Function to Create Parameter Layout for apvts --HENRY
+    //Function to Create Parameter Layout for apvts -- HENRY
+    //================================================================================
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     //HENRY
@@ -67,9 +68,22 @@ public:
     juce::AudioProcessorValueTreeState apvts{ *this,nullptr, "Parameters", createParameterLayout() };
 
 
-
-
 private:
+
+
+    //Each Filter has a response of 12db per octave for lowpass//highpass filter
+    using Filter = juce::dsp::IIR::Filter<float>;
+
+    //Put 4 filters in a processing chain for cut filters 
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+
+    //create 2 mono chains to represent 1 stereochain
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, Filter, Filter, CutFilter>;
+
+    MonoChain leftChain, rightChain;
+
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
