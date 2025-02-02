@@ -10,6 +10,21 @@
 
 #include <JuceHeader.h>
 
+//Data structure for Parameters for EQ 
+struct ChainSettings
+{
+    float lfFreq{ 0 }, lfGainInDecibels{ 0 }, lfQuality{ 1.f };
+    float lmFreq{ 0 }, lmGainInDecibels{ 0 }, lmQuality{ 1.f };
+    float  mFreq{ 0 },   mGainInDecibels{ 0 }, mQuality{ 1.f };
+    float hmFreq{ 0 }, hmGainInDecibels{ 0 }, hmQuality{ 1.f };
+    float hfFreq{ 0 }, hfGainInDecibels{ 0 }, hfQuality{ 1.f };
+
+    float lowCutFreq{ 0 }, highCutFreq{0};
+    int lowCutSlope{ 0 }, highCutSlope{0};
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
 //==============================================================================
 /**
 */
@@ -82,6 +97,18 @@ private:
     using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, Filter, Filter, CutFilter>;
 
     MonoChain leftChain, rightChain;
+
+    enum ChainPositions 
+    {
+        Lowcut,
+        LF,
+        LM,
+        M,
+        HM,
+        HF,
+        HighCut
+        
+    };
 
 
     //==============================================================================
