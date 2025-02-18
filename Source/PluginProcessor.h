@@ -10,6 +10,15 @@
 
 #include <JuceHeader.h>
 
+//Enum for cutfilter types
+
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
 //Data structure for Parameters for EQ 
 struct ChainSettings
 {
@@ -20,7 +29,7 @@ struct ChainSettings
     float hfFreq{ 0 }, hfGainInDecibels{ 0 }, hfQuality{ 1.f };
 
     float lowCutFreq{ 0 }, highCutFreq{0};
-    int lowCutSlope{ 0 }, highCutSlope{0};
+    Slope lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
@@ -100,7 +109,7 @@ private:
 
     enum ChainPositions 
     {
-        Lowcut,
+        LowCut,
         LF,
         LM,
         M,
@@ -109,6 +118,91 @@ private:
         HighCut
         
     };
+
+    void updatePeakFilter(const ChainSettings& chainSettings);
+    using Coefficients = Filter::CoefficientsPtr;
+    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+    template<int Index, typename ChainType, typename CoefficientType> 
+    void update(ChainType& chain, CoefficientType& coefficients) {
+        updateCoefficients(chain.template get<Index>.coefficients, coefficients[Index]);
+        chain.template setBypassed<Index>(false);
+    }
+
+    template<typename ChainType, typename CoefficientType>
+    void updateCutFilter(ChainType& leftLowCut,
+                         const CoefficientType& cutCoefficients,
+                         const Slope& lowCutSlope) 
+    {
+        //L
+        leftLowCut.template setBypassed<0>(true); 
+        leftLowCut.template setBypassed<1>(true);  
+        leftLowCut.template setBypassed<2>(true); 
+        leftLowCut.template setBypassed<3>(true); 
+
+        switch (lowCutSlope)
+        {
+            case Slope_48:
+            {
+                update<3>(leftLowCut, cutCoefficients);
+            }
+            case Slope_36:
+            {
+                update<2>(leftLowCut, cutCoefficients);
+            }
+            case Slope_24:
+            {
+                update<1>(leftLowCut, cutCoefficients);
+
+            }
+            case Slope_12:
+            {
+                update<0>(leftLowCut, cutCoefficients);
+
+            }
+            
+            case Slope_12:
+            {
+                //L
+                *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+                leftLowCut.template setBypassed<0>(false);
+                break;
+            }
+            case Slope_24:
+            {
+                //L
+                *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+                leftLowCut.template setBypassed<0>(false);
+                *leftLowCut.template get<1>().coefficients = *cutCoefficients[1];
+                leftLowCut.template setBypassed<1>(false);
+                break;
+            }
+            case Slope_36:
+            {
+                //L
+                *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+                leftLowCut.template setBypassed<0>(false);
+                *leftLowCut.template get<1>().coefficients = *cutCoefficients[1];
+                leftLowCut.template setBypassed<1>(false);
+                *leftLowCut.template get<2>().coefficients = *cutCoefficients[2];
+                leftLowCut.template setBypassed<2>(false);
+                break;
+            }
+            case Slope_48:
+            {
+                //L
+                *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+                leftLowCut.template setBypassed<0>(false);
+                *leftLowCut.template get<1>().coefficients = *cutCoefficients[1];
+                leftLowCut.template setBypassed<1>(false);
+                *leftLowCut.template get<2>().coefficients = *cutCoefficients[2];
+                leftLowCut.template setBypassed<2>(false);
+                *leftLowCut.template get<3>().coefficients = *cutCoefficients[3];
+                leftLowCut.template setBypassed<3>(false);
+                break;
+            }
+        } 
+    }
 
 
     //==============================================================================
