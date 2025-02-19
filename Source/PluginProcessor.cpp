@@ -272,50 +272,77 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts) {
 
 }
 
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate, std::string name) {
+
+    if (name == "lf") {
+        return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+            chainSettings.lfFreq,
+            chainSettings.lfQuality,
+            juce::Decibels::decibelsToGain(chainSettings.lfGainInDecibels));
+    }
+    if (name == "lm") {
+        return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+            chainSettings.lmFreq,
+            chainSettings.lmQuality,
+            juce::Decibels::decibelsToGain(chainSettings.lmGainInDecibels));
+    }
+    if (name == "m") {
+        return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+            chainSettings.mFreq,
+            chainSettings.mQuality,
+            juce::Decibels::decibelsToGain(chainSettings.mGainInDecibels));
+    }
+    if (name == "hm") {
+        return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+            chainSettings.hmFreq,
+            chainSettings.hmQuality,
+            juce::Decibels::decibelsToGain(chainSettings.hmGainInDecibels));
+    }
+    if (name == "hf") {
+        return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+            chainSettings.hfFreq,
+            chainSettings.hfQuality,
+            juce::Decibels::decibelsToGain(chainSettings.hfGainInDecibels));
+    }
+    else {
+        return nullptr;
+    }
+}
+
+
+
 void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings) {
 
-    auto lfCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                              chainSettings.lfFreq,
-                                                                              chainSettings.lfQuality,
-                                                                              juce::Decibels::decibelsToGain(chainSettings.lfGainInDecibels));
+    auto lfCoefficients = makePeakFilter(chainSettings, getSampleRate(), "lf");
+   
     *leftChain.get<ChainPositions::LF>().coefficients = *lfCoefficients;    //Copy values from lf Coefficients object -- Wrapper around array allocated on the heap
     *rightChain.get<ChainPositions::LF>().coefficients = *lfCoefficients;   //Allocation on the heap is not good for Audio software --> WHY???
 
     updateCoefficients(leftChain.get<ChainPositions::LF>().coefficients, lfCoefficients);
     updateCoefficients(rightChain.get<ChainPositions::LF>().coefficients, lfCoefficients);
 
-    auto lmCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                              chainSettings.lmFreq,
-                                                                              chainSettings.lmQuality,
-                                                                              juce::Decibels::decibelsToGain(chainSettings.lmGainInDecibels));
+    auto lmCoefficients = makePeakFilter(chainSettings, getSampleRate(), "lm");
+
 
     updateCoefficients(leftChain.get<ChainPositions::LM>().coefficients, lmCoefficients);
     updateCoefficients(rightChain.get<ChainPositions::LM>().coefficients, lmCoefficients);
 
-    auto mCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                             chainSettings.mFreq,
-                                                                             chainSettings.mQuality,
-                                                                             juce::Decibels::decibelsToGain(chainSettings.mGainInDecibels));
+    auto mCoefficients = makePeakFilter(chainSettings, getSampleRate(), "m");
+
 
     updateCoefficients(leftChain.get<ChainPositions::M>().coefficients, mCoefficients);
     updateCoefficients(rightChain.get<ChainPositions::M>().coefficients, mCoefficients);
 
-    auto hmCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                              chainSettings.hmFreq,
-                                                                              chainSettings.hmQuality,
-                                                                              juce::Decibels::decibelsToGain(chainSettings.hmGainInDecibels));
-
+    auto hmCoefficients = makePeakFilter(chainSettings, getSampleRate(), "hm");
 
     updateCoefficients(leftChain.get<ChainPositions::HM>().coefficients, hmCoefficients);
     updateCoefficients(rightChain.get<ChainPositions::HM>().coefficients, hmCoefficients);
 
 
-    auto hfCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-                                                                              chainSettings.hfFreq,
-                                                                              chainSettings.hfQuality,
-                                                                              juce::Decibels::decibelsToGain(chainSettings.hfGainInDecibels));
+    auto hfCoefficients = makePeakFilter(chainSettings, getSampleRate(), "hf");
+
     
-     //WHAT THE HECK IS THE POINT OF THIS
+     //WHAT THE HECK IS THE POINT OF THIS**
      updateCoefficients(leftChain.get<ChainPositions::HF>().coefficients, hfCoefficients);
      updateCoefficients(rightChain.get<ChainPositions::HF>().coefficients, hfCoefficients);
 
@@ -324,8 +351,10 @@ void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings
 
 
 
-//WHAT THE HECK IS THE POINT OF THIS --> good practices??? Laleling???
-void SimpleEQAudioProcessor::updateCoefficients(Coefficients& old, const Coefficients& replacements) {    
+
+
+//WHAT THE HECK IS THE POINT OF THIS** --> good practices??? Laleling???
+void updateCoefficients(Coefficients& old, const Coefficients& replacements) {
     *old = *replacements;
 }
 
