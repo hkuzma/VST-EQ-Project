@@ -51,6 +51,15 @@ HF_QSliderAttachment(audioProcessor.apvts, "HF Q", HF_QSlider)
 
     }
 
+    //listen for when parameters change --> Returns array of pointers
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params) {
+        param->addListener(this);
+    }
+
+    //Start timer
+    startTimerHz(60);
+
 
 
     setSize (600, 400);
@@ -58,6 +67,10 @@ HF_QSliderAttachment(audioProcessor.apvts, "HF Q", HF_QSlider)
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params) {
+        param->removeListener(this);
+    }
 }
 
 //==============================================================================
@@ -213,7 +226,38 @@ void SimpleEQAudioProcessorEditor::timerCallback() {
     //If parameters changed = true, set to false AND...
     if (parametersChanged.compareAndSetBool(false, true)) {
         //update mono chain from apvts
+        
+        auto chainSettings = getChainSettings(audioProcessor.apvts);
+        auto lfCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate(), "lf");
+        updateCoefficients(monoChain.get<ChainPositions::LF>().coefficients, lfCoefficients);
+
+        auto lmCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate(), "lm");
+        updateCoefficients(monoChain.get<ChainPositions::LM>().coefficients, lmCoefficients);
+
+        auto mCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate(), "m");
+        updateCoefficients(monoChain.get<ChainPositions::M>().coefficients, mCoefficients);
+
+        auto hmCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate(), "hm");
+        updateCoefficients(monoChain.get<ChainPositions::HM>().coefficients, hmCoefficients);
+
+        auto hfCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate(), "hf");
+        updateCoefficients(monoChain.get<ChainPositions::HF>().coefficients, hfCoefficients);
+
+        auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
+        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+
+        auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate()); 
+        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+
+
+
+
+
+
+
+
         //signal a repaint
+        repaint();
     }
 }
 
