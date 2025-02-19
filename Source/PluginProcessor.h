@@ -34,6 +34,29 @@ struct ChainSettings
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
+//Each Filter has a response of 12db per octave for lowpass//highpass filter
+using Filter = juce::dsp::IIR::Filter<float>;
+
+//Put 4 filters in a processing chain for cut filters 
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+
+//create 2 mono chains to represent 1 stereochain
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, Filter, Filter, CutFilter>;
+
+
+enum ChainPositions
+{
+    LowCut,
+    LF,
+    LM,
+    M,
+    HM,
+    HF,
+    HighCut
+
+};
+
 //==============================================================================
 /**
 */
@@ -93,32 +116,8 @@ public:
 
 
 private:
-
-
-    //Each Filter has a response of 12db per octave for lowpass//highpass filter
-    using Filter = juce::dsp::IIR::Filter<float>;
-
-    //Put 4 filters in a processing chain for cut filters 
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-
-
-    //create 2 mono chains to represent 1 stereochain
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, Filter, Filter, Filter, CutFilter>;
-
     MonoChain leftChain, rightChain;
-
-    enum ChainPositions 
-    {
-        LowCut,
-        LF,
-        LM,
-        M,
-        HM,
-        HF,
-        HighCut
-        
-    };
-
+   
     void updatePeakFilter(const ChainSettings& chainSettings);
     using Coefficients = Filter::CoefficientsPtr;
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
