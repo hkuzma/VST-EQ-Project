@@ -10,6 +10,86 @@
 #include "PluginEditor.h"
 
 
+
+void LookAndFeel::drawRotarySlider(juce::Graphics& g,
+                                   int x,
+                                   int y,
+                                   int width,
+                                   int height,
+                                   float sliderPosProportional,
+                                   float rotaryStartAngle,
+                                   float rotaryEndAngle,
+                                   juce::Slider& slider) {
+    using namespace juce;
+
+    auto bounds = Rectangle<float>(x, y, width, height);
+    
+    ColourGradient gradient = ColourGradient(Colour(177u, 174u, 184u), x, y,
+                                             Colour(74u, 74u, 77u), width, height, true);
+    /*gradient.addColour(0.5, Colour(97u, 18u, 167u));
+    gradient.addColour(0.5, Colour(255u, 154u, 1u));*/
+    
+    //g.setColour(Colour(97u, 18u, 167u));
+    g.setGradientFill(gradient);
+    g.fillEllipse(bounds);
+
+    g.setColour(Colour(40u, 40u, 41u));
+    g.drawEllipse(bounds, 1.f);
+
+    auto center = bounds.getCentre();
+
+
+    //Draw Rectangle level for dials
+    Path p;
+
+    Rectangle<float> r;
+    r.setLeft(center.getX() - 2);
+    r.setRight(center.getX() + 2);
+    r.setTop(bounds.getY() + 2);
+    r.setBottom(center.getY() - 20);
+
+    p.addRectangle(r);
+
+    jassert(rotaryStartAngle < rotaryEndAngle);
+
+    //rotate rectangle when dial turned
+    auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
+
+    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+
+
+    g.fillPath(p);
+
+}
+
+void RotarySliderWithLabels::paint(juce::Graphics& g) {
+
+    using namespace juce;
+
+    auto startAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+
+    auto range = getRange();
+
+    auto sliderBounds = getSliderBounds();
+
+    getLookAndFeel().drawRotarySlider(g, 
+                                      sliderBounds.getX()+5, 
+                                      sliderBounds.getY()+5, 
+                                      sliderBounds.getWidth()-10,
+                                      sliderBounds.getHeight()-10, 
+                                      jmap(getValue(), range.getStart(),range.getEnd(),0.0,1.0),
+                                      startAng,
+                                      endAng, 
+                                      *this);
+}
+
+juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const {
+
+    return getLocalBounds();
+}
+//=================================================================================================================
+
 //SEPARATE COMPONENT FOR RESPONSE CURVE
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p) {
     //listen for when parameters change --> Returns array of pointers
@@ -181,34 +261,24 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), 
 
+LF_FreqSlider(*audioProcessor.apvts.getParameter("LF"), "Hz"), LF_GainSlider(*audioProcessor.apvts.getParameter("LF Gain"), "dB"), LF_QSlider(*audioProcessor.apvts.getParameter("LF Q"), ""),
+LM_FreqSlider(*audioProcessor.apvts.getParameter("LM"), "Hz"), LM_GainSlider(*audioProcessor.apvts.getParameter("LM Gain"), "dB"), LM_QSlider(*audioProcessor.apvts.getParameter("LM Q"), ""),
+M_FreqSlider(*audioProcessor.apvts.getParameter("M"), "Hz"), M_GainSlider(*audioProcessor.apvts.getParameter("M Gain"), "dB"), M_QSlider(*audioProcessor.apvts.getParameter("M Q"), ""),
+HM_FreqSlider(*audioProcessor.apvts.getParameter("HM"), "Hz"), HM_GainSlider(*audioProcessor.apvts.getParameter("HM Gain"), "dB"), HM_QSlider(*audioProcessor.apvts.getParameter("HM Q"), ""),
+HF_FreqSlider(*audioProcessor.apvts.getParameter("HF"), "Hz"), HF_GainSlider(*audioProcessor.apvts.getParameter("HF Gain"), "dB"), HF_QSlider(*audioProcessor.apvts.getParameter("HF Q"), ""),
+lowCutFreqSlider(*audioProcessor.apvts.getParameter("LowCut Freq"), "Hz"), lowCutSlopeSlider(*audioProcessor.apvts.getParameter("LowCutSlope"), "dB/Oct"),
+highCutFreqSlider(*audioProcessor.apvts.getParameter("HighCut Freq"), "Hz"), highCutSlopeSlider(*audioProcessor.apvts.getParameter("HighCutSlope"), "dB/Oct"),
+
 
 responseCurveComponent(audioProcessor),
 
-lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
-lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
-
-highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
-highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider),
-
-LF_FreqSliderAttachment(audioProcessor.apvts, "LF", LF_FreqSlider),
-LF_GainSliderAttachment(audioProcessor.apvts, "LF Gain", LF_GainSlider),
-LF_QSliderAttachment(audioProcessor.apvts, "LF Q", LF_QSlider),
-
-LM_FreqSliderAttachment(audioProcessor.apvts, "LM", LM_FreqSlider),
-LM_GainSliderAttachment(audioProcessor.apvts, "LM Gain", LM_GainSlider),
-LM_QSliderAttachment(audioProcessor.apvts, "LM Q", LM_QSlider),
-
-M_FreqSliderAttachment(audioProcessor.apvts, "M", M_FreqSlider),
-M_GainSliderAttachment(audioProcessor.apvts, "M Gain", M_GainSlider),
-M_QSliderAttachment(audioProcessor.apvts, "M Q", M_QSlider),
-
-HM_FreqSliderAttachment(audioProcessor.apvts, "HM", HM_FreqSlider),
-HM_GainSliderAttachment(audioProcessor.apvts, "HM Gain", HM_GainSlider),
-HM_QSliderAttachment(audioProcessor.apvts, "HM Q", HM_QSlider),
-
-HF_FreqSliderAttachment(audioProcessor.apvts, "HF", HF_FreqSlider),
-HF_GainSliderAttachment(audioProcessor.apvts, "HF Gain", HF_GainSlider),
-HF_QSliderAttachment(audioProcessor.apvts, "HF Q", HF_QSlider)
+lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider), lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
+highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider), highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider),
+LF_FreqSliderAttachment(audioProcessor.apvts, "LF", LF_FreqSlider), LF_GainSliderAttachment(audioProcessor.apvts, "LF Gain", LF_GainSlider), LF_QSliderAttachment(audioProcessor.apvts, "LF Q", LF_QSlider),
+LM_FreqSliderAttachment(audioProcessor.apvts, "LM", LM_FreqSlider), LM_GainSliderAttachment(audioProcessor.apvts, "LM Gain", LM_GainSlider), LM_QSliderAttachment(audioProcessor.apvts, "LM Q", LM_QSlider),
+M_FreqSliderAttachment(audioProcessor.apvts, "M", M_FreqSlider), M_GainSliderAttachment(audioProcessor.apvts, "M Gain", M_GainSlider), M_QSliderAttachment(audioProcessor.apvts, "M Q", M_QSlider),
+HM_FreqSliderAttachment(audioProcessor.apvts, "HM", HM_FreqSlider), HM_GainSliderAttachment(audioProcessor.apvts, "HM Gain", HM_GainSlider), HM_QSliderAttachment(audioProcessor.apvts, "HM Q", HM_QSlider),
+HF_FreqSliderAttachment(audioProcessor.apvts, "HF", HF_FreqSlider), HF_GainSliderAttachment(audioProcessor.apvts, "HF Gain", HF_GainSlider), HF_QSliderAttachment(audioProcessor.apvts, "HF Q", HF_QSlider)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
