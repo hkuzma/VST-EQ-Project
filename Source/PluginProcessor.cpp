@@ -280,25 +280,25 @@ Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRat
             chainSettings.lfQuality,
             juce::Decibels::decibelsToGain(chainSettings.lfGainInDecibels));
     }
-    if (name == "lm") {
+    else if (name == "lm") {
         return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
             chainSettings.lmFreq,
             chainSettings.lmQuality,
             juce::Decibels::decibelsToGain(chainSettings.lmGainInDecibels));
     }
-    if (name == "m") {
+    else if (name == "m") {
         return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
             chainSettings.mFreq,
             chainSettings.mQuality,
             juce::Decibels::decibelsToGain(chainSettings.mGainInDecibels));
     }
-    if (name == "hm") {
+    else if (name == "hm") {
         return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
             chainSettings.hmFreq,
             chainSettings.hmQuality,
             juce::Decibels::decibelsToGain(chainSettings.hmGainInDecibels));
     }
-    if (name == "hf") {
+    else if (name == "hf") {
         return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
             chainSettings.hfFreq,
             chainSettings.hfQuality,
