@@ -13,27 +13,52 @@
 
 //HENRY
 
+struct SliderValue {
+    juce::String name;
+    int value;
+
+
+    SliderValue(juce::String name, int value);
+    SliderValue() {
+        name = "";
+        value = -1;
+    }
+    void setValue(int value) {
+        this->value = value;
+    }
+};
 //Custom Struct for circular slider // Dials
 struct LookAndFeel : juce::LookAndFeel_V4 {
     void drawRotarySlider(juce::Graphics&,
-        int x, int y, int width, int height,
-        float sliderPosProportional,
-        float rotaryStartAngle,
-        float rotaryEndAngle,
-        juce::Slider&) override;
+                          int x, int y, int width, int height,
+                          float sliderPosProportional,
+                          float rotaryStartAngle,
+                          float rotaryEndAngle,
+                          juce::Slider&/*,
+                          SliderValue& LFV,
+                          SliderValue& LMV, 
+                          SliderValue& MV, 
+                          SliderValue& HMV, 
+                          SliderValue& HFV, 
+                          SliderValue& LCV, 
+                          SliderValue& HCV)*/) override;
 
 
 };
 
 struct RotarySliderWithLabels : juce::Slider {
+    juce::String name;
     
-    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : 
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap, 
+                           const juce::String& unitSuffix, 
+                           const juce::String& sliderName) :
     juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
                  juce::Slider::TextEntryBoxPosition::NoTextBox),
     param(&rap),
     suffix(unitSuffix)
     {
         setLookAndFeel(&lnf);
+        this->name = sliderName;
     }
 
     ~RotarySliderWithLabels() {
@@ -44,6 +69,10 @@ struct RotarySliderWithLabels : juce::Slider {
     juce::Rectangle<int> getSliderBounds() const;
     int getTextHeight() const { return 14; }
     juce::String getDisplayString() const;
+    juce::String getGivenName() const {
+        return name;
+    }
+
 
 private:
     LookAndFeel lnf;
@@ -90,6 +119,27 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+
+   /* auto getLF_Value() {
+        return LF_FreqSlider.getValue();
+    }
+    auto getLM_Value() {
+        return LM_FreqSlider.getValue();
+    }
+    auto getM_Value() {
+        return M_FreqSlider.getValue();
+    }
+    RotarySliderWithLabels getHM() {
+        return LF_FreqSlider;
+    }
+    auto getHF_Value() {
+        return HF_FreqSlider.getValue();
+    }
+    auto getHC_Value() {
+        return highCutFreqSlider.getValue();
+    }auto getLC_Value() {
+        return lowCutFreqSlider.getValue();
+    }*/
     
 private:
     // This reference is provided as a quick way for your editor to
@@ -144,6 +194,14 @@ private:
                highCutFreqSliderAttachment,
                lowCutSlopeSliderAttachment,
                highCutSlopeSliderAttachment;
+    
+    SliderValue LF_Value,
+                LM_Value,
+                M_Value,
+                HM_Value,
+                HF_Value,
+                LowCut_Value,
+                HighCut_Value;
 
 
     //It's Helpful to put identical components in a vector

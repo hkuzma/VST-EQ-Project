@@ -412,20 +412,20 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     //=============================================================================================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq", 
                                                            "LowCut Freq", 
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .3f), 
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f), 
                                                            20.f));
 
     //HIGH CUT
     //=============================================================================================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
                                                            "HighCut Freq", 
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f), 
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f), 
                                                            20000.f));
     //Peaks
     //=============================================================================================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("LF",
                                                            "LF", 
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f), 
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f), 
                                                            100.f));
    //TESTING CREATING A CHANGEABLE SKEW
     juce::NormalisableRange<float> EQRange{ 20.f, 20000.f};
@@ -433,22 +433,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("LM",
                                                            "LM",
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f),
                                                            250.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("M",
                                                            "M",
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f),
                                                            1000.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("HM",
                                                            "HM",
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f),
                                                            2500.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("HF",
                                                            "HF",
-                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .2f),
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .1f),
                                                            7500.f));
     
     //GAIN
@@ -456,26 +456,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     //=============================================================================================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("LF Gain",
                                                            "LF Gain", 
-                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.1f, 1.f), 
                                                            0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LM Gain",
                                                            "LM Gain",
-                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.1f, 1.f),
                                                            0.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("M Gain",
                                                            "M Gain",
-                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.1f, 1.f),
                                                            0.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("HM Gain",
                                                            "HM Gain",
-                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.1f, 1.f),
                                                            0.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("HF Gain",
                                                            "HF Gain",
-                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.1f, 1.f),
                                                            0.0f));
 
     //Q
