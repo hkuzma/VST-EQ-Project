@@ -1,1 +1,8 @@
-SIMPLE EQ BUILD WITH THE JUCE FRAMEWORK following a tutorial by MatKat Music posted here: https://www.youtube.com/watch?v=i_Iq4_Kd7Rc and making some improvements of my own.
+SIMPLE EQ BUILT WITH THE JUCE FRAMEWORK 
+following a tutorial by MatKat Music posted here: https://www.youtube.com/watch?v=i_Iq4_Kd7Rc 
+and making some improvements of my own.
+
+The current design implements a 5 band EQ with Lowpass and Highpass Filters
+
+The 5 bands have adjustable frequency, gain, and q values that can be changed using implemented knobs
+the overall eq band is displayed with markers for each band to create an easy to use UI.
