@@ -443,6 +443,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     r.setCentre(responseArea.getX() + x, responseArea.getCentreY() + map(int(mags[x])) - midpoint);
 
     LFREQ.addRoundedRectangle(r, 2.f);
+
     g.setColour(juce::Colours::red);
     g.fillPath(LFREQ);
 
@@ -462,7 +463,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     x = (LM_Freq / 20000);
     x = 600 * x;
     //Account for Skew
-    x = (200 * log10(x)) + 44;
+    x = (200 * log10(x)) +  44;
     
     r2.setCentre(responseArea.getX() + x, responseArea.getCentreY() + map(int(mags[x])) - midpoint);
 
@@ -707,12 +708,21 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     top = bounds.getY() - TOPMOD;
     bottom = qBounds.getBottom() + BOTMOD;
 
-    g.drawRoundedRectangle(Rectangle<float>(left, top, width - (.05 * width), height + (.06 * height)), cornerRadius, thickness);
+    //g.drawRoundedRectangle(Rectangle<float>(left, top, width - (.05 * width), height + (.06 * height)), cornerRadius, thickness);
+    bounds = M_FreqSlider.getBounds();
+    width = std::min(bounds.getWidth(), bounds.getHeight());
+    g.drawRoundedRectangle(Rectangle<float>(bounds.getX() + 25, bounds.getY(), width - 25, width - 25), 50.f, thickness);
+   
+    bounds = M_GainSlider.getBounds();
+    width = std::min(bounds.getWidth(), bounds.getHeight());
+    g.drawRoundedRectangle(Rectangle<float>(bounds.getX() + 25, bounds.getY(), width - 25, width - 25), 50.f, thickness);
 
+    bounds = M_QSlider.getBounds();
+    width = std::min(bounds.getWidth(), bounds.getHeight());
+    g.drawRoundedRectangle(Rectangle<float>(bounds.getX() + 25, bounds.getY(), width - 25, width - 25), 50.f, thickness);
 
-   /* g.drawRoundedRectangle(M_FreqSlider.getBounds().toFloat(), cornerRadius, thickness);
-    g.drawRoundedRectangle(M_GainSlider.getBounds().toFloat(), cornerRadius, thickness);
-    g.drawRoundedRectangle(M_QSlider.getBounds().toFloat(), cornerRadius, thickness);*/
+   /* g.drawRoundedRectangle(M_GainSlider.getBounds().toFloat()*.9, 25, thickness);
+    g.drawRoundedRectangle(M_QSlider.getBounds().toFloat(), 25, thickness);*/
 
     g.setColour(juce::Colours::green);
 
